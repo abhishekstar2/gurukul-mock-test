@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gurukul Smart Mock Test & Certificate Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #eef2f6; color: #1e293b; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; }
+    .app-container { background: #ffffff; width: 100%; max-width: 720px; border-radius: 16px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.09); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 22px; text-align: center; }
+    .header h1 { font-size: 1.5rem; margin-bottom: 5px; }
+    .header p { font-size: 0.92rem; opacity: 0.9; }
+    .content { padding: 25px; }
+
+    /* Name Input */
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b; }
+    .name-input { width: 100%; padding: 12px 15px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; }
+    .name-input:focus { border-color: #2563eb; background: #f8fafc; }
+
+    /* Category Grid */
+    .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0 20px; }
+    @media (min-width: 600px) { .category-grid { grid-template-columns: repeat(3, 1fr); } }
+    .cat-btn { padding: 12px 8px; border: 2px solid #e2e8f0; border-radius: 10px; background: #fff; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; color: #334155; text-align: center; }
+    .cat-btn:hover { border-color: #93c5fd; }
+    .cat-btn.active { border-color: #2563eb; background: #dbeafe; color: #1e40af; }
+
+    .rules-box { background: #f8fafc; border-left: 4px solid #2563eb; padding: 14px; border-radius: 8px; margin-bottom: 20px; line-height: 1.65; font-size: 0.9rem; }
+    .btn { display: inline-block; width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
+    .btn:hover { background: #1d4ed8; }
+    .btn-success { background: #16a34a; margin-top: 10px; }
+    .btn-success:hover { background: #15803d; }
+    .btn-secondary { background: #e2e8f0; color: #1e293b; }
+
+    /* Quiz Screen */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; font-weight: 600; flex-wrap: wrap; gap: 8px; }
+    .badge { background: #e0e7ff; color: #1d4ed8; padding: 4px 10px; border-radius: 6px; font-size: 0.82rem; }
+    .timer { background: #fee2e2; color: #dc2626; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; }
+    .progress-bar { width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #2563eb; width: 10%; transition: width 0.3s ease; }
+
+    .question-text { font-size: 1.12rem; font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
+    .options-list { display: flex; flex-direction: column; gap: 11px; margin-bottom: 22px; }
+    .option-btn { padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; background: #ffffff; text-align: left; font-size: 0.98rem; cursor: pointer; transition: 0.2s; }
+    .option-btn:hover { border-color: #93c5fd; background: #eff6ff; }
+    .option-btn.selected { border-color: #2563eb; background: #dbeafe; font-weight: 600; color: #1e40af; }
+    .nav-buttons { display: flex; gap: 12px; }
+
+    /* Result & Certificate */
+    .score-card { text-align: center; padding: 18px; background: #f8fafc; border-radius: 12px; margin-bottom: 20px; }
+    .score-circle { width: 105px; height: 105px; border-radius: 50%; background: #2563eb; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 12px; font-size: 1.5rem; font-weight: bold; }
+    .score-circle span { font-size: 0.78rem; font-weight: normal; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .stat-box { padding: 10px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; }
+    .stat-correct { background: #dcfce7; color: #166534; }
+    .stat-wrong { background: #fee2e2; color: #991b1b; }
+    .stat-skip { background: #f1f5f9; color: #475569; }
+
+    .cert-wrapper { margin: 20px 0; text-align: center; }
+    canvas { max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); border: 2px solid #cbd5e1; }
+
+    .review-item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 13px; margin-bottom: 10px; font-size: 0.92rem; }
+    .review-item p { margin-bottom: 5px; }
+    .ans-right { color: #16a34a; font-weight: 600; }
+    .ans-wrong { color: #dc2626; font-weight: 600; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <h1>🎓 Gurukul Online Mock Test Portal</h1>
+    <p>SSC, Railway & Bihar Competitive Exam Practice (100+ Questions Bank)</p>
+  </div>
+
+  <!-- 1. Start Screen -->
+  <div id="start-screen" class="content">
+    <div class="input-group">
+      <label for="student-name">👤 अपना पूरा नाम लिखें (सर्टिफिकेट के लिए):</label>
+      <input type="text" id="student-name" class="name-input" placeholder="उदाहरण: Abhishek Kumar" required>
+    </div>
+
+    <label style="font-weight: 600; display: block;">📚 अपना विषय चुनें (Select Subject):</label>
+    <div class="category-grid">
+      <button class="cat-btn active" onclick="setCategory('ALL', this)">🌟 All Mix (सभी विषय)</button>
+      <button class="cat-btn" onclick="setCategory('Physics', this)">⚡ Physics (भौतिकी)</button>
+      <button class="cat-btn" onclick="setCategory('Chemistry', this)">🧪 Chemistry (रसायन)</button>
+      <button class="cat-btn" onclick="setCategory('Math', this)">📐 Math (गणित)</button>
+      <button class="cat-btn" onclick="setCategory('Reasoning', this)">🧠 Reasoning (तर्कशक्ति)</button>
+      <button class="cat-btn" onclick="setCategory('Bihar', this)">🏛️ Bihar Special (बिहार)</button>
+    </div>
+
+    <div class="rules-box">
+      • <strong>100 प्रश्नों</strong> के बैंक से हर बार <strong>10 रैंडम प्रश्न</strong> (All Mix में 15 प्रश्न) मिलेंगे।<br>
+      • कुल समय: <strong>06:00 मिनट</strong> | प्रत्येक सही उत्तर: <strong>+1 अंक</strong>।<br>
+      • टेस्ट सबमिट करने पर तुरंत आपके नाम का <strong>Digital Certificate</strong> बनेगा जिसे आप डाउनलोड कर सकते हैं।
+    </div>
+    <button class="btn" onclick="startQuiz()">टेस्ट शुरू करें (Start Test) →</button>
+  </div>
+
+  <!-- 2. Quiz Screen -->
+  <div id="quiz-screen" class="content hidden">
+    <div class="top-bar">
+      <span><span id="question-counter">प्रश्न 1 / 10</span> <span id="q-cat-badge" class="badge">Subject</span></span>
+      <span class="timer">⏱️ <span id="time-left">06:00</span></span>
+    </div>
+    <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+    <div id="question-text" class="question-text"></div>
+    <div id="options-list" class="options-list"></div>
+    <div class="nav-buttons">
+      <button id="prev-btn" class="btn btn-secondary" onclick="prevQuestion()">← पिछला</button>
+      <button id="next-btn" class="btn" onclick="nextQuestion()">अगला →</button>
+    </div>
+  </div>
+
+  <!-- 3. Result & Certificate Screen -->
+  <div id="result-screen" class="content hidden">
+    <div class="score-card">
+      <div class="score-circle">
+        <div id="final-score">0/10</div>
+        <span>आपका स्कोर</span>
+      </div>
+      <h3 id="result-remark">शानदार प्रयास!</h3>
+      <div class="stats-grid">
+        <div class="stat-box stat-correct">सही: <span id="correct-count">0</span></div>
+        <div class="stat-box stat-wrong">गलत: <span id="wrong-count">0</span></div>
+        <div class="stat-box stat-skip">छोड़े गए: <span id="skip-count">0</span></div>
+      </div>
+    </div>
+
+    <!-- Certificate Section -->
+    <div class="cert-wrapper">
+      <h3 style="margin-bottom: 10px; color: #1e3a8a;">🏆 आपका डिजिटल सर्टिफिकेट तैयार है:</h3>
+      <canvas id="cert-canvas" width="900" height="620"></canvas>
+      <button class="btn btn-success" onclick="downloadCertificate()">⬇️ सर्टिफिकेट डाउनलोड करें (Download PNG)</button>
+    </div>
+
+    <h3 style="margin: 20px 0 12px;">उत्तर समीक्षा (Answer Review):</h3>
+    <div id="review-container"></div>
+
+    <button class="btn" style="margin-top: 15px;" onclick="restartQuiz()">🔄 नया टेस्ट दें (New Random Questions)</button>
+  </div>
+</div>
+
+<script>
+  // 100 प्रश्नों का विशाल संग्रह (20 Physics + 20 Chemistry + 20 Math + 20 Reasoning + 20 Bihar)
+  const questionBank = [
+    // ================= PHYSICS (20 Questions) =================
+    { cat: "Physics", q: "प्रकाश वर्ष (Light Year) किसकी इकाई है?", options: ["समय की", "दूरी की", "प्रकाश की तीव्रता की", "द्रव्यमान की"], answer: 1 },
+    { cat: "Physics", q: "ध्वनि की चाल सबसे अधिक किस माध्यम में होती है?", options: ["निर्वात में", "वायु में", "जल में", "ठोस (इस्पात) में"], answer: 3 },
+    { cat: "Physics", q: "विद्युत धारा (Electric Current) को मापने वाला यंत्र कौन-सा है?", options: ["वोल्टमीटर", "अमीटर (Ammeter)", "बैरोमीटर", "हाइग्रोमीटर"], answer: 1 },
+    { cat: "Physics", q: "यदि किसी वस्तु का वेग दोगुना कर दिया जाए, तो उसकी गतिज ऊर्जा कितनी हो जाएगी?", options: ["दोगुनी", "आधी", "चार गुनी", "समान रहेगी"], answer: 2 },
+    { cat: "Physics", q: "लेंस की क्षमता का SI मात्रक क्या है?", options: ["वाट", "डायोप्टर (Dioptre)", "जूल", "न्यूटन"], answer: 1 },
+    { cat: "Physics", q: "हीरा किस घटना के कारण अत्यधिक चमकता है?", options: ["परावर्तन", "पूर्ण आंतरिक परावर्तन", "प्रकीर्णन", "अपवर्तन"], answer: 1 },
+    { cat: "Physics", q: "कार्य (Work) और ऊर्जा (Energy) का SI मात्रक क्या है?", options: ["न्यूटन", "वाट", "जूल (Joule)", "पास्कल"], answer: 2 },
+    { cat: "Physics", q: "वाहनों में पीछे का दृश्य देखने के लिए किस दर्पण का उपयोग होता है?", options: ["अवतल दर्पण", "उत्तल दर्पण (Convex Mirror)", "समतल दर्पण", "परवलयिक दर्पण"], answer: 1 },
+    { cat: "Physics", q: "न्यूटन का प्रथम गति नियम किसकी परिभाषा देता है?", options: ["बल और जड़त्व की", "संवेग की", "त्वरण की", "गुरुत्वाकर्षण की"], answer: 0 },
+    { cat: "Physics", q: "सूर्य की ऊर्जा का मुख्य स्रोत क्या है?", options: ["नाभिकीय विखंडन", "नाभिकीय संलयन (Nuclear Fusion)", "रासायनिक अभिक्रिया", "गुरुत्वाकर्षण"], answer: 1 },
+    { cat: "Physics", q: "वायुमंडलीय दाब (Atmospheric Pressure) किससे मापा जाता है?", options: ["थर्मामीटर", "बैरोमीटर", "लैक्टोमीटर", "अमीटर"], answer: 1 },
+    { cat: "Physics", q: "विद्युत प्रतिरोध (Resistance) का SI मात्रक क्या है?", options: ["एम्पियर", "वोल्ट", "ओम (Ohm)", "कॉलम"], answer: 2 },
+    { cat: "Physics", q: "आकाश का रंग नीला किस कारण दिखाई देता है?", options: ["प्रकाश का अपवर्तन", "प्रकाश का प्रकीर्णन (Scattering)", "विवर्तन", "ध्रुवण"], answer: 1 },
+    { cat: "Physics", q: "एक अश्वशक्ति (1 Horse Power) कितने वाट के बराबर होती है?", options: ["500 वाट", "746 वाट", "1000 वाट", "646 वाट"], answer: 1 },
+    { cat: "Physics", q: "निकट दृष्टि दोष (Myopia) के निवारण के लिए किस लेंस का प्रयोग होता है?", options: ["उत्तल लेंस", "अवतल लेंस (Concave Lens)", "बेलनाकार लेंस", "द्विफोकसी लेंस"], answer: 1 },
+    { cat: "Physics", q: "गुरुत्वाकर्षण का सार्वत्रिक नियम किसने प्रतिपादित किया?", options: ["गैलीलियो", "न्यूटन", "आइंस्टीन", "केप्लर"], answer: 1 },
+    { cat: "Physics", q: "ध्वनि तरंगें किस प्रकार की तरंगें होती हैं?", options: ["अनुप्रस्थ (Transverse)", "अनुदैर्ध्य (Longitudinal)", "विद्युत चुम्बकीय", "इनमें से कोई नहीं"], answer: 1 },
+    { cat: "Physics", q: "विद्युत बल्ब का फिलामेंट किस धातु का बना होता है?", options: ["तांबा", "नाइक्रोम", "टंगस्टन (Tungsten)", "एल्युमिनियम"], answer: 2 },
+    { cat: "Physics", q: "पृथ्वी से पलायन वेग (Escape Velocity) का मान कितना है?", options: ["9.8 किमी/सेकंड", "11.2 किमी/सेकंड", "7.9 किमी/सेकंड", "15.0 किमी/सेकंड"], answer: 1 },
+    { cat: "Physics", q: "किस तापमान पर सेल्सियस और फारेनहाइट पैमाने का मान समान होता है?", options: ["0°", "-40°", "100°", "-273°"], answer: 1 },
+
+    // ================= CHEMISTRY (20 Questions) =================
+    { cat: "Chemistry", q: "खाने के सोडे (Baking Soda) का रासायनिक नाम क्या है?", options: ["सोडियम कार्बोनेट", "सोडियम बाइकार्बोनेट", "कैल्शियम कार्बोनेट", "सोडियम क्लोराइड"], answer: 1 },
+    { cat: "Chemistry", q: "शुद्ध जल (Pure Water) का pH मान कितना होता है?", options: ["5", "6", "7", "8"], answer: 2 },
+    { cat: "Chemistry", q: "लाफिंग गैस (Laughing Gas) का रासायनिक सूत्र क्या है?", options: ["NO2", "N2O (नाइट्रस ऑक्साइड)", "CO2", "SO2"], answer: 1 },
+    { cat: "Chemistry", q: "सबसे हल्की धातु (Lightest Metal) कौन-सी है?", options: ["सोडियम", "लिथियम (Lithium)", "मैग्नीशियम", "एल्युमिनियम"], answer: 1 },
+    { cat: "Chemistry", q: "विटामिन C का रासायनिक नाम क्या है?", options: ["रेटिनॉल", "थायमिन", "एस्कॉर्बिक अम्ल", "कैल्सिफेरॉल"], answer: 2 },
+    { cat: "Chemistry", q: "गुब्बारों में कौन-सी हल्की गैस भरी जाती है?", options: ["ऑक्सीजन", "हीलियम (Helium)", "नाइट्रोजन", "आर्गन"], answer: 1 },
+    { cat: "Chemistry", q: "पीतल (Brass) किन दो धातुओं की मिश्रधातु है?", options: ["तांबा और टिन", "तांबा और जस्ता (Zinc)", "लोहा और कार्बन", "तांबा और निकल"], answer: 1 },
+    { cat: "Chemistry", q: "अम्लराज (Aqua Regia) किन दो अम्लों का मिश्रण होता है?", options: ["HCl और HNO3", "H2SO4 और HCl", "HNO3 और H2SO4", "CH3COOH और HCl"], answer: 0 },
+    { cat: "Chemistry", q: "प्रकृति में पाया जाने वाला सबसे कठोर पदार्थ कौन-सा है?", options: ["ग्रेफाइट", "हीरा (Diamond)", "प्लैटिनम", "लोहा"], answer: 1 },
+    { cat: "Chemistry", q: "गोबर गैस (Biogas) का मुख्य घटक क्या है?", options: ["एथेन", "मीथेन (CH4)", "प्रोपेन", "ब्यूटेन"], answer: 1 },
+    { cat: "Chemistry", q: "आधुनिक आवर्त सारणी (Modern Periodic Table) किसने दी?", options: ["मेंडलीफ", "हेनरी मोसले", "डाल्टन", "रदरफोर्ड"], answer: 1 },
+    { cat: "Chemistry", q: "सिरका (Vinegar) में कौन-सा अम्ल पाया जाता है?", options: ["सिट्रिक अम्ल", "एसिटिक अम्ल", "लैक्टिक अम्ल", "फॉर्मिक अम्ल"], answer: 1 },
+    { cat: "Chemistry", q: "कौन-सी धातु कमरे के तापमान पर द्रव अवस्था में रहती है?", options: ["सोडियम", "पारा (Mercury)", "चांदी", "तांबा"], answer: 1 },
+    { cat: "Chemistry", q: "लोहे पर जंग लगने से उसका भार क्या होता है?", options: ["कम हो जाता है", "बढ़ जाता है", "अपरिवर्तित रहता है", "शून्य हो जाता है"], answer: 1 },
+    { cat: "Chemistry", q: "वायुमंडल में सर्वाधिक मात्रा में पाई जाने वाली गैस कौन-सी है?", options: ["ऑक्सीजन", "कार्बन डाइऑक्साइड", "नाइट्रोजन (78%)", "आर्गन"], answer: 2 },
+    { cat: "Chemistry", q: "शुष्क बर्फ (Dry Ice) किसे कहा जाता है?", options: ["ठोस जल", "ठोस कार्बन डाइऑक्साइड", "द्रव नाइट्रोजन", "ठोस अमोनिया"], answer: 1 },
+    { cat: "Chemistry", q: "नींबू और संतरे में कौन-सा अम्ल पाया जाता है?", options: ["टार्टरिक अम्ल", "सिट्रिक अम्ल", "ऑक्जेलिक अम्ल", "मैलिक अम्ल"], answer: 1 },
+    { cat: "Chemistry", q: "पेंसिल बनाने में कार्बन के किस अपरूप का उपयोग होता है?", options: ["हीरा", "ग्रेफाइट", "फुलरीन", "कोयला"], answer: 1 },
+    { cat: "Chemistry", q: "चूने के पानी को दूधिया कौन-सी गैस करती है?", options: ["ऑक्सीजन", "कार्बन डाइऑक्साइड (CO2)", "हाइड्रोजन", "क्लोरीन"], answer: 1 },
+    { cat: "Chemistry", q: "परमाणु के नाभिक (Nucleus) में क्या-क्या होते हैं?", options: ["इलेक्ट्रॉन और प्रोटॉन", "प्रोटॉन और न्यूट्रॉन", "इलेक्ट्रॉन और न्यूट्रॉन", "केवल प्रोटॉन"], answer: 1 },
+
+    // ================= MATH (20 Questions) =================
+    { cat: "Math", q: "यदि 15 वस्तुओं का क्रय मूल्य 12 वस्तुओं के विक्रय मूल्य के बराबर है, तो लाभ प्रतिशत क्या होगा?", options: ["20%", "25%", "30%", "15%"], answer: 1 },
+    { cat: "Math", q: "प्रथम 10 प्राकृतिक संख्याओं (1 से 10 तक) का योग क्या होगा?", options: ["45", "50", "55", "60"], answer: 2 },
+    { cat: "Math", q: "एक रेलगाड़ी 72 किमी/घंटा की चाल से चल रही है। उसकी चाल मीटर/सेकंड में क्या होगी?", options: ["15 मी/से", "20 मी/से", "25 मी/से", "18 मी/से"], answer: 1 },
+    { cat: "Math", q: "₹2000 का 10% वार्षिक दर से 2 वर्ष का साधारण ब्याज (Simple Interest) कितना होगा?", options: ["₹200", "₹400", "₹420", "₹300"], answer: 1 },
+    { cat: "Math", q: "दो संख्याओं का अनुपात 3:4 है और उनका म.स. (HCF) 5 है, तो उनका ल.स. (LCM) क्या होगा?", options: ["40", "60", "80", "120"], answer: 1 },
+    { cat: "Math", q: "एक वृत्त की त्रिज्या 7 सेमी है, तो उसका क्षेत्रफल क्या होगा? (π = 22/7)", options: ["44 वर्ग सेमी", "154 वर्ग सेमी", "144 वर्ग सेमी", "88 वर्ग सेमी"], answer: 1 },
+    { cat: "Math", q: "यदि x + 1/x = 5 है, तो x² + 1/x² का मान क्या होगा?", options: ["25", "23", "27", "21"], answer: 1 },
+    { cat: "Math", q: "500 का 20% कितना होता है?", options: ["50", "100", "150", "200"], answer: 1 },
+    { cat: "Math", q: "एक समकोण त्रिभुज का आधार 3 सेमी और लंब 4 सेमी है, तो कर्ण (Hypotenuse) कितना होगा?", options: ["5 सेमी", "6 सेमी", "7 सेमी", "25 सेमी"], answer: 0 },
+    { cat: "Math", q: "sin 30° + cos 60° का मान क्या होता है?", options: ["0", "1/2", "1", "2"], answer: 2 },
+    { cat: "Math", q: "A किसी काम को 10 दिन में और B उसी काम को 15 दिन में करता है। दोनों मिलकर कितने दिन में करेंगे?", options: ["5 दिन", "6 दिन", "8 दिन", "12 दिन"], answer: 1 },
+    { cat: "Math", q: "सबसे छोटी अभाज्य संख्या (Smallest Prime Number) कौन-सी है?", options: ["0", "1", "2", "3"], answer: 2 },
+    { cat: "Math", q: "किसी वर्ग का परिमाप 40 सेमी है, तो उसका क्षेत्रफल क्या होगा?", options: ["100 वर्ग सेमी", "160 वर्ग सेमी", "80 वर्ग सेमी", "400 वर्ग सेमी"], answer: 0 },
+    { cat: "Math", q: "12, 15, 18, 21 और 24 का औसत (Average) क्या होगा?", options: ["16", "18", "20", "19"], answer: 1 },
+    { cat: "Math", q: "यदि 3x - 7 = 14 है, तो x का मान क्या होगा?", options: ["5", "7", "6", "8"], answer: 1 },
+    { cat: "Math", q: "एक घड़ी ₹800 में खरीदकर ₹680 में बेची गई। हानि प्रतिशत बताएं।", options: ["10%", "12%", "15%", "20%"], answer: 2 },
+    { cat: "Math", q: "√625 + √144 का मान क्या होगा?", options: ["35", "37", "39", "41"], answer: 1 },
+    { cat: "Math", q: "दो संख्याओं का योग 25 और अंतर 5 है, तो बड़ी संख्या कौन-सी होगी?", options: ["10", "15", "20", "12"], answer: 1 },
+    { cat: "Math", q: "एक घन (Cube) की भुजा 4 सेमी है, तो उसका आयतन (Volume) क्या होगा?", options: ["16 घन सेमी", "32 घन सेमी", "64 घन सेमी", "96 घन सेमी"], answer: 2 },
+    { cat: "Math", q: "25% को भिन्न (Fraction) में कैसे लिखेंगे?", options: ["1/2", "1/3", "1/4", "1/5"], answer: 2 },
+
+    // ================= REASONING (20 Questions) =================
+    { cat: "Reasoning", q: "श्रृंखला पूरी करें: 2, 6, 12, 20, 30, ?", options: ["38", "40", "42", "44"], answer: 2 },
+    { cat: "Reasoning", q: "यदि CAT = 24 और DOG = 26 है, तो TIGER का कोड क्या होगा?", options: ["55", "59", "60", "52"], answer: 1 },
+    { cat: "Reasoning", q: "विषम (Odd One Out) चुनें: पटना, रांची, लखनऊ, कानपुर", options: ["पटना", "रांची", "लखनऊ", "कानपुर"], answer: 3 },
+    { cat: "Reasoning", q: "जैसे 'डॉक्टर' का संबंध 'अस्पताल' से है, वैसे ही 'शिक्षक' का संबंध किससे है?", options: ["छात्र", "किताब", "विद्यालय (School)", "परीक्षा"], answer: 2 },
+    { cat: "Reasoning", q: "राहुल उत्तर की ओर 10 किमी चलता है, फिर दाएं मुड़कर 5 किमी चलता है। अब उसका मुख किस दिशा में है?", options: ["उत्तर", "दक्षिण", "पूर्व (East)", "पश्चिम"], answer: 2 },
+    { cat: "Reasoning", q: "अगला अक्षर समूह चुनें: AZ, BY, CX, DW, ?", options: ["EV", "EU", "FV", "EX"], answer: 0 },
+    { cat: "Reasoning", q: "एक पंक्ति में राम बाएं से 10वें और दाएं से 15वें स्थान पर है। पंक्ति में कुल कितने छात्र हैं?", options: ["25", "24", "26", "23"], answer: 1 },
+    { cat: "Reasoning", q: "यदि '+' का अर्थ '×' और '-' का अर्थ '÷' है, तो 10 + 5 - 5 का मान क्या होगा?", options: ["50", "10", "25", "15"], answer: 1 },
+    { cat: "Reasoning", q: "लुप्त संख्या ज्ञात करें: 3, 9, 27, 81, ?", options: ["162", "243", "210", "324"], answer: 1 },
+    { cat: "Reasoning", q: "एक महिला की ओर इशारा करते हुए मोहन ने कहा, 'वह मेरे पिता के इकलौते पुत्र की पत्नी है।' वह महिला मोहन की कौन है?", options: ["बहन", "मां", "पत्नी (Wife)", "पुत्री"], answer: 2 },
+    { cat: "Reasoning", q: "यदि किसी कूट भाषा में APPLE को BQQMF लिखा जाता है, तो MANGO को क्या लिखा जाएगा?", options: ["NBOHP", "NBOHQ", "MBOHP", "NANHP"], answer: 0 },
+    { cat: "Reasoning", q: "घड़ी में 3:00 बजे दोनों सुइयों (घंटा और मिनट) के बीच कितने डिग्री का कोण बनता है?", options: ["60°", "90°", "120°", "180°"], answer: 1 },
+    { cat: "Reasoning", q: "विषम चुनें: 8, 27, 64, 100, 125", options: ["27", "64", "100", "125"], answer: 2 },
+    { cat: "Reasoning", q: "सार्थक क्रम में सजाएं: 1. पौधा, 2. बीज, 3. फल, 4. फूल", options: ["2, 1, 4, 3", "1, 2, 3, 4", "2, 1, 3, 4", "4, 3, 2, 1"], answer: 0 },
+    { cat: "Reasoning", q: "यदि आज सोमवार है, तो 61 दिन बाद कौन-सा दिन होगा?", options: ["मंगलवार", "बुधवार", "शनिवार", "रविवार"], answer: 2 },
+    { cat: "Reasoning", q: "5 : 25 :: 7 : ?", options: ["35", "42", "49", "56"], answer: 2 },
+    { cat: "Reasoning", q: "निम्न में से कौन-सा लीप वर्ष (Leap Year) है?", options: ["2022", "2023", "2024", "2025"], answer: 2 },
+    { cat: "Reasoning", q: "श्रृंखला पूरी करें: 100, 95, 85, 70, 50, ?", options: ["30", "25", "20", "35"], answer: 1 },
+    { cat: "Reasoning", q: "यदि जल को भोजन, भोजन को वृक्ष, और वृक्ष को आकाश कहा जाए, तो फल कहाँ लगेंगे?", options: ["भोजन पर", "आकाश पर", "वृक्ष पर", "जल पर"], answer: 1 },
+    { cat: "Reasoning", q: "विषम चुनें: त्रिभुज, वर्ग, वृत्त, आयत", options: ["त्रिभुज", "वर्ग", "वृत्त (Circle)", "आयत"], answer: 2 },
+
+    // ================= BIHAR SPECIAL & GK (20 Questions) =================
+    { cat: "Bihar", q: "बिहार दिवस प्रतिवर्ष किस तिथि को मनाया जाता है?", options: ["15 मार्च", "22 मार्च", "1 अप्रैल", "2 अक्टूबर"], answer: 1 },
+    { cat: "Bihar", q: "1857 की क्रांति में बिहार (जगदीशपुर/आरा) का नेतृत्व किसने किया था?", options: ["मंगल पांडे", "तात्या टोपे", "बाबू वीर कुंवर सिंह", "नाना साहब"], answer: 2 },
+    { cat: "Bihar", q: "बिहार का शोक (Sorrow of Bihar) किस नदी को कहा जाता है?", options: ["गंगा", "सोन", "कोसी", "गंडक"], answer: 2 },
+    { cat: "Bihar", q: "वाल्मीकि राष्ट्रीय उद्यान बिहार के किस जिले में स्थित है?", options: ["पटना", "गया", "पश्चिमी चंपारण", "रोहतास"], answer: 2 },
+    { cat: "Bihar", q: "बिहार का राजकीय वृक्ष (State Tree) क्या है?", options: ["बरगद", "पीपल", "आम", "अशोक"], answer: 1 },
+    { cat: "Bihar", q: "बिहार का राजकीय पक्षी क्या है?", options: ["मोर", "गौरैया (Sparrow)", "कोयल", "तोता"], answer: 1 },
+    { cat: "Bihar", q: "नालंदा विश्वविद्यालय की स्थापना किस गुप्त शासक ने की थी?", options: ["समुद्रगुप्त", "कुमारगुप्त प्रथम", "चंद्रगुप्त द्वितीय", "स्कंदगुप्त"], answer: 1 },
+    { cat: "Bihar", q: "गौतम बुद्ध को ज्ञान की प्राप्ति बिहार में कहाँ हुई थी?", options: ["राजगीर", "बोधगया", "वैशाली", "पावापुरी"], answer: 1 },
+    { cat: "Bihar", q: "बिहार के प्रथम मुख्यमंत्री कौन थे?", options: ["डॉ. राजेंद्र प्रसाद", "डॉ. श्रीकृष्ण सिंह", "कर्पूरी ठाकुर", "जगजीवन राम"], answer: 1 },
+    { cat: "Bihar", q: "बिहार में कुल कितने जिले (Districts) हैं?", options: ["36", "37", "38", "40"], answer: 2 },
+    { cat: "Bihar", q: "शेरशाह सूरी का मकबरा बिहार के किस शहर में स्थित है?", options: ["पटना", "सासाराम (रोहतास)", "आरा", "मुंगेर"], answer: 1 },
+    { cat: "Bihar", q: "बिहार का सबसे बड़ा जिला (क्षेत्रफल की दृष्टि से) कौन-सा है?", options: ["पटना", "गया", "पश्चिमी चंपारण", "पूर्वी चंपारण"], answer: 2 },
+    { cat: "Bihar", q: "सिखों के दसवें गुरु गोविंद सिंह जी का जन्म कहाँ हुआ था?", options: ["अमृतसर", "पटना साहिब", "नांदेड़", "आनंदपुर साहिब"], answer: 1 },
+    { cat: "Bihar", q: "बिहार में 'सोन नदी' किस स्थान पर गंगा नदी से मिलती है?", options: ["बक्सर", "मनेर (पटना के पास)", "भागलपुर", "मुंगेर"], answer: 1 },
+    { cat: "Bihar", q: "बिहार की सबसे ऊंची चोटी 'सोमेश्वर पहाड़ी' किस जिले में है?", options: ["रोहतास", "कैमूर", "पश्चिमी चंपारण", "नवादा"], answer: 2 },
+    { cat: "Bihar", q: "चंपारण सत्याग्रह (गांधीजी का पहला सत्याग्रह) किस वर्ष हुआ था?", options: ["1915", "1917", "1919", "1920"], answer: 1 },
+    { cat: "Bihar", q: "ककोलत जलप्रपात (Kakolat Waterfall) बिहार के किस जिले में है?", options: ["गया", "नवादा", "राजगीर", "कैमूर"], answer: 1 },
+    { cat: "Bihar", q: "बिहार में लोकसभा की कुल कितनी सीटें हैं?", options: ["38", "40", "42", "45"], answer: 1 },
+    { cat: "Bihar", q: "डॉ. राजेंद्र प्रसाद का जन्म बिहार के किस जिले में हुआ था?", options: ["सारण", "सिवान (जीरादेई)", "भोजपुर", "वैशाली"], answer: 1 },
+    { cat: "Bihar", q: "मधुबनी चित्रकला (Madhubani Painting) किस राज्य की विश्व प्रसिद्ध लोक कला है?", options: ["उत्तर प्रदेश", "बिहार", "झारखंड", "ओडिशा"], answer: 1 }
+  ];
+
+  let selectedCategory = 'ALL';
+  let activeQuestions = [];
+  let currentIdx = 0;
+  let userAnswers = [];
+  let timeLeft = 360; // 6 मिनट
+  let timerInterval;
+  let studentName = "Student";
+
+  function setCategory(cat, btnElement) {
+    selectedCategory = cat;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btnElement.classList.add('active');
+  }
+
+  function shuffleArray(array) {
+    let arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function startQuiz() {
+    const nameInput = document.getElementById("student-name").value.trim();
+    if (!nameInput) {
+      alert("कृपया सर्टिफिकेट के लिए पहले अपना नाम लिखें!");
+      document.getElementById("student-name").focus();
+      return;
+    }
+    studentName = nameInput;
+
+    let filtered = selectedCategory === 'ALL'
+      ? questionBank
+      : questionBank.filter(q => q.cat === selectedCategory);
+
+    // All Mix में 15 प्रश्न, और किसी एक विषय में 10 रैंडम प्रश्न
+    let count = selectedCategory === 'ALL' ? 15 : 10;
+    activeQuestions = shuffleArray(filtered).slice(0, count);
+    userAnswers = new Array(activeQuestions.length).fill(null);
+    currentIdx = 0;
+    timeLeft = 360;
+
+    document.getElementById("start-screen").classList.add("hidden");
+    document.getElementById("quiz-screen").classList.remove("hidden");
+    loadQuestion();
+    startTimer();
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      let mins = Math.floor(timeLeft / 60);
+      let secs = timeLeft % 60;
+      document.getElementById("time-left").innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        submitQuiz();
+      }
+    }, 1000);
+  }
+
+  function loadQuestion() {
+    const qObj = activeQuestions[currentIdx];
+    document.getElementById("question-counter").innerText = `प्रश्न ${currentIdx + 1} / ${activeQuestions.length}`;
+    document.getElementById("q-cat-badge").innerText = qObj.cat;
+    document.getElementById("progress-fill").style.width = `${((currentIdx + 1) / activeQuestions.length) * 100}%`;
+    document.getElementById("question-text").innerText = `${currentIdx + 1}. ${qObj.q}`;
+
+    const optionsList = document.getElementById("options-list");
+    optionsList.innerHTML = "";
+
+    qObj.options.forEach((opt, index) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn" + (userAnswers[currentIdx] === index ? " selected" : "");
+      btn.innerText = `${String.fromCharCode(65 + index)}. ${opt}`;
+      btn.onclick = () => selectOption(index);
+      optionsList.appendChild(btn);
+    });
+
+    document.getElementById("prev-btn").style.visibility = currentIdx === 0 ? "hidden" : "visible";
+    document.getElementById("next-btn").innerText = currentIdx === activeQuestions.length - 1 ? "सबमिट करें & सर्टिफिकेट पाएं ✓" : "अगला →";
+  }
+
+  function selectOption(index) {
+    userAnswers[currentIdx] = index;
+    loadQuestion();
+  }
+
+  function nextQuestion() {
+    if (currentIdx < activeQuestions.length - 1) {
+      currentIdx++;
+      loadQuestion();
+    } else {
+      submitQuiz();
+    }
+  }
+
+  function prevQuestion() {
+    if (currentIdx > 0) {
+      currentIdx--;
+      loadQuestion();
+    }
+  }
+
+  function submitQuiz() {
+    clearInterval(timerInterval);
+    document.getElementById("quiz-screen").classList.add("hidden");
+    document.getElementById("result-screen").classList.remove("hidden");
+
+    let correct = 0, wrong = 0, skipped = 0;
+    const reviewContainer = document.getElementById("review-container");
+    reviewContainer.innerHTML = "";
+
+    activeQuestions.forEach((q, i) => {
+      const uAns = userAnswers[i];
+      if (uAns === null) skipped++;
+      else if (uAns === q.answer) correct++;
+      else wrong++;
+
+      const div = document.createElement("div");
+      div.className = "review-item";
+      const userText = uAns !== null ? q.options[uAns] : "कोई उत्तर नहीं दिया";
+      const isCorrect = uAns === q.answer;
+
+      div.innerHTML = `
+        <p><strong>${i + 1}. [${q.cat}] ${q.q}</strong></p>
+        <p>आपका उत्तर: <span class="${uAns === null ? '' : (isCorrect ? 'ans-right' : 'ans-wrong')}">${userText}</span></p>
+        ${!isCorrect ? `<p>सही उत्तर: <span class="ans-right">${q.options[q.answer]}</span></p>` : ''}
+      `;
+      reviewContainer.appendChild(div);
+    });
+
+    document.getElementById("final-score").innerText = `${correct}/${activeQuestions.length}`;
+    document.getElementById("correct-count").innerText = correct;
+    document.getElementById("wrong-count").innerText = wrong;
+    document.getElementById("skip-count").innerText = skipped;
+
+    const percentage = Math.round((correct / activeQuestions.length) * 100);
+    const remark = document.getElementById("result-remark");
+    if (percentage >= 80) remark.innerText = `🏆 शानदार प्रदर्शन, ${studentName}! (${percentage}%)`;
+    else if (percentage >= 50) remark.innerText = `👍 अच्छा प्रयास, ${studentName}! (${percentage}%)`;
+    else remark.innerText = `📚 मेहनत जारी रखें, ${studentName}! (${percentage}%)`;
+
+    // सर्टिफिकेट बनाएं
+    generateCertificate(studentName, selectedCategory, correct, activeQuestions.length, percentage);
+  }
+
+  // Canvas से सुंदर सर्टिफिकेट बनाने का फंक्शन
+  function generateCertificate(name, category, score, total, percentage) {
+    const canvas = document.getElementById("cert-canvas");
+    const ctx = canvas.getContext("2d");
+
+    // बैकग्राउंड
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // बाहरी नीला बॉर्डर
+    ctx.strokeStyle = "#1e3a8a";
+    ctx.lineWidth = 18;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    // आंतरिक सुनहरा (Gold) बॉर्डर
+    ctx.strokeStyle = "#d97706";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(38, 38, canvas.width - 76, canvas.height - 76);
+
+    // कोने के सजावटी त्रिभुज
+    ctx.fillStyle = "#1e3a8a";
+    ctx.beginPath(); ctx.moveTo(20, 20); ctx.lineTo(110, 20); ctx.lineTo(20, 110); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(canvas.width - 20, 20); ctx.lineTo(canvas.width - 110, 20); ctx.lineTo(canvas.width - 20, 110); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(20, canvas.height - 20); ctx.lineTo(110, canvas.height - 20); ctx.lineTo(20, canvas.height - 110); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(canvas.width - 20, canvas.height - 20); ctx.lineTo(canvas.width - 110, canvas.height - 20); ctx.lineTo(canvas.width - 20, canvas.height - 110); ctx.fill();
+
+    // संस्थान का नाम
+    ctx.fillStyle = "#1e3a8a";
+    ctx.font = "bold 28px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("GURUKUL SHIKSHA KENDRA, HAVELIPUR", canvas.width / 2, 105);
+
+    ctx.fillStyle = "#64748b";
+    ctx.font = "16px Segoe UI, sans-serif";
+    ctx.fillText("Online Competitive Exam Practice Portal", canvas.width / 2, 132);
+
+    // सर्टिफिकेट मुख्य शीर्षक
+    ctx.fillStyle = "#d97706";
+    ctx.font = "bold 42px Georgia, serif";
+    ctx.fillText("CERTIFICATE OF ACHIEVEMENT", canvas.width / 2, 195);
+
+    ctx.fillStyle = "#334155";
+    ctx.font = "20px Segoe UI, sans-serif";
+    ctx.fillText("This certificate is proudly presented to", canvas.width / 2, 245);
+
+    // छात्र का नाम
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold italic 44px Georgia, serif";
+    ctx.fillText(name.toUpperCase(), canvas.width / 2, 305);
+
+    // नाम के नीचे सुनहरी लाइन
+    ctx.strokeStyle = "#d97706";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(220, 320);
+    ctx.lineTo(680, 320);
+    ctx.stroke();
+
+    // विवरण
+    const subjectLabel = category === 'ALL' ? 'All Subjects (Mix Practice)' : category;
+    ctx.fillStyle = "#334155";
+    ctx.font = "20px Segoe UI, sans-serif";
+    ctx.fillText(`For successfully completing the Online Mock Test in`, canvas.width / 2, 365);
+
+    ctx.fillStyle = "#1d4ed8";
+    ctx.font = "bold 24px Segoe UI, sans-serif";
+    ctx.fillText(`${subjectLabel}`, canvas.width / 2, 400);
+
+    ctx.fillStyle = "#16a34a";
+    ctx.font = "bold 24px Segoe UI, sans-serif";
+    ctx.fillText(`Score: ${score} / ${total}  (${percentage}%)`, canvas.width / 2, 442);
+
+    // नीचे तारीख और हस्ताक्षर
+    const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    ctx.fillStyle = "#475569";
+    ctx.font = "17px Segoe UI, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(`Date: ${today}`, 95, 535);
+
+    // गोल्ड मेडल बैज (बीच में)
+    ctx.fillStyle = "#f59e0b";
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, 520, 32, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 14px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("VERIFIED", canvas.width / 2, 525);
+
+    ctx.fillStyle = "#1e3a8a";
+    ctx.font = "bold 18px Segoe UI, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("Director / Admin", canvas.width - 95, 520);
+    ctx.fillStyle = "#64748b";
+    ctx.font = "15px Segoe UI, sans-serif";
+    ctx.fillText("Gurukul Shiksha Kendra", canvas.width - 95, 542);
+  }
+
+  function downloadCertificate() {
+    const canvas = document.getElementById("cert-canvas");
+    const link = document.createElement("a");
+    const safeName = studentName.replace(/\s+/g, '_');
+    link.download = `Certificate_${safeName}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
+
+  function restartQuiz() {
+    document.getElementById("time-left").innerText = "06:00";
+    document.getElementById("result-screen").classList.add("hidden");
+    document.getElementById("start-screen").classList.remove("hidden");
+  }
+</script>
+
+</body>
+</html>
